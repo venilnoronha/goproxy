@@ -15,6 +15,8 @@ import (
 	"strings"
 	"sync"
 	"sync/atomic"
+
+	"golang.org/x/net/http2"
 )
 
 type ConnectActionLiteral int
@@ -232,7 +234,8 @@ func (proxy *ProxyHttpServer) handleHttps(w http.ResponseWriter, r *http.Request
 						return
 					}
 					removeProxyHeaders(ctx, req)
-					resp, err = http.DefaultTransport.RoundTrip(req)
+					tr := http2.Transport{}
+					resp, err = tr.RoundTrip(req)
 					if err != nil {
 						ctx.Warnf("FAILED REQ %v", req)
 						ctx.Warnf("Cannot read TLS response from mitm'd server %v", err)
