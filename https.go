@@ -209,9 +209,10 @@ func (proxy *ProxyHttpServer) handleHttps(w http.ResponseWriter, r *http.Request
 				req.RemoteAddr = r.RemoteAddr // since we're converting the request, need to carry over the original connecting IP as well
 				ctx.Logf("req %v", r.Host)
 
-				// if !httpsRegexp.MatchString(req.URL.String()) {
-				// 	req.URL, err = url.Parse("https://" + r.Host /* + "/" + req.URL.String()*/)
-				// }
+				if !httpsRegexp.MatchString(req.URL.String()) {
+					req.URL, err = url.Parse("https://" + r.Host + "/" + req.URL.String())
+				}
+				ctx.Logf("REQ %v", req)
 
 				// Bug fix which goproxy fails to provide request
 				// information URL in the context when does HTTPS MITM
@@ -225,25 +226,12 @@ func (proxy *ProxyHttpServer) handleHttps(w http.ResponseWriter, r *http.Request
 						return
 					}
 					if err != nil {
-						ctx.Warnf("ERROR %v", err)
-						ctx.Warnf("REQ %v", req)
-						ctx.Warnf("R %v", r)
 						ctx.Warnf("Illegal URL %s", "https://"+r.Host+req.URL.Path)
 						return
 					}
 					removeProxyHeaders(ctx, req)
-
-					ctx.Logf("REQ %v", req)
-					ctx.Logf("R %v", r)
-
-					req.Host = r.Host
-					req.URL.Host = r.Host
-					req.URL.Scheme = "https"
-					req.Header.Set("host", r.Host)
-
-					resp, err = http.DefaultTransport.RoundTrip(req)
+					resp, err = ctx.RoundTrip(req)
 					if err != nil {
-						ctx.Warnf("FAILED REQ %v", req)
 						ctx.Warnf("Cannot read TLS response from mitm'd server %v", err)
 						return
 					}
