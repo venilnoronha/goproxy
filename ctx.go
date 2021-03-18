@@ -41,8 +41,10 @@ func (f RoundTripperFunc) RoundTrip(req *http.Request, ctx *ProxyCtx) (*http.Res
 
 func (ctx *ProxyCtx) RoundTrip(req *http.Request) (*http.Response, error) {
 	if ctx.RoundTripper != nil {
+		ctx.Logf("ROUNDTRIP %v", ctx.RoundTripper)
 		return ctx.RoundTripper.RoundTrip(req, ctx)
 	}
+	ctx.Logf("PROXY ROUNDTRIP %v", ctx.Proxy.Tr)
 	return ctx.Proxy.Tr.RoundTrip(req)
 }
 
