@@ -239,6 +239,7 @@ func (proxy *ProxyHttpServer) handleHttps(w http.ResponseWriter, r *http.Request
 					// req.Host = r.Host
 					// req.URL = req.URL
 					// req.Header.Set("host", req.Host)
+					req.URL.Scheme = "https"
 
 					resp, err = http.DefaultTransport.RoundTrip(req)
 					if err != nil {
