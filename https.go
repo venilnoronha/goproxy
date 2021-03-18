@@ -233,6 +233,7 @@ func (proxy *ProxyHttpServer) handleHttps(w http.ResponseWriter, r *http.Request
 					}
 					removeProxyHeaders(ctx, req)
 
+					req.Host = r.Host
 					req.URL.Scheme = "https"
 					req.URL.Host = req.Host
 					req.Header.Set("host", req.Host)
